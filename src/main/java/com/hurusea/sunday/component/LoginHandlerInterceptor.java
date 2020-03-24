@@ -1,6 +1,5 @@
 package com.hurusea.sunday.component;
 
-import org.springframework.context.annotation.Bean;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -13,14 +12,14 @@ import javax.servlet.http.HttpServletResponse;
  */
 
 public class LoginHandlerInterceptor implements HandlerInterceptor {
+
     @Override
-    @Bean
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         Object user = request.getSession().getAttribute("loginUser");
         if (user==null){
             //user为空，禁止登录
             request.setAttribute("msg", "没有权限，请先登录");
-            request.getRequestDispatcher("index").forward(request, response);
+            request.getRequestDispatcher("login.html").forward(request, response);
             return false;
 
 

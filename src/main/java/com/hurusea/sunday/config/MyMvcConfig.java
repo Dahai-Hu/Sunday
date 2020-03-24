@@ -1,6 +1,5 @@
 package com.hurusea.sunday.config;
 
-import com.fasterxml.jackson.databind.cfg.HandlerInstantiator;
 import com.hurusea.sunday.component.LoginHandlerInterceptor;
 import com.hurusea.sunday.component.MyLocaleResolver;
 import org.springframework.context.annotation.Bean;
@@ -8,37 +7,52 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
 /**
  * @hurusea
  * @create2020-03-23 15:20
  */
 @Configuration
-public class MyMvcConfig implements WebMvcConfigurer {
+public class MyMvcConfig extends WebMvcConfigurerAdapter {
+
+
 
     @Override
     public void addViewControllers(ViewControllerRegistry registry) {
         // super.addViewControllers(registry);
-        //浏览器发送 /atguigu 请求来到 success
-        registry.addViewController("/atguigu").setViewName("success");
-        registry.addViewController("/").setViewName("login");
-        registry.addViewController("/index.html").setViewName("login");
-        registry.addViewController("/main.html").setViewName("dashboard");
+        //浏览器发送 /hurusea 请求来到 success
+        registry.addViewController("/hurusea").setViewName("success");
     }
 
+    //所有的WebMvcConfigurerAdapter组件都会一起起作用
+    @Bean //将组件注册在容器
+    public WebMvcConfigurerAdapter webMvcConfigurerAdapter(){
+        WebMvcConfigurerAdapter adapter = new WebMvcConfigurerAdapter() {
+            @Override
+            public void addViewControllers(ViewControllerRegistry registry) {
+                registry.addViewController("/").setViewName("login");
+                registry.addViewController("/index.html").setViewName("login");
+                registry.addViewController("/main.html").setViewName("dashboard");
+            }
 
-    @Override
-    public void addInterceptors(InterceptorRegistry registry) {
-//                super.addInterceptors(registry);
-        registry.addInterceptor(new LoginHandlerInterceptor()).addPathPatterns("/**")
-                .excludePathPatterns("/index","/","/user/login","/asserts/css/**","/webjars/**");
+            //注册拦截器
+            @Override
+            public void addInterceptors(InterceptorRegistry registry) {
+                //super.addInterceptors(registry);
+                //静态资源；  *.css , *.js
+                //SpringBoot已经做好了静态资源映射
+                registry.addInterceptor(new LoginHandlerInterceptor()).addPathPatterns("/**").
+                        excludePathPatterns("/index.html","/","/user/login","/asset/**","/webjars/**");
+            }
+        };
+        return adapter;
     }
-
 
     @Bean
-    public LocaleResolver localeResolver() {
+    public LocaleResolver localeResolver(){
+
         return new MyLocaleResolver();
     }
-}
 
+}
